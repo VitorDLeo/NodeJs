@@ -5,8 +5,8 @@ const app = express();
 
 
 // localhost:3333
-app.get("/", (request, response)=>{
-    return response.json({message: "hello world"});
+app.get("/courses", (request, response)=>{
+    return response.json(["curso 1", "curso 2", "curso 3"]);
 });
 
 app.listen(3333);
