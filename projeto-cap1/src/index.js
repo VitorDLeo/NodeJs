@@ -23,6 +23,18 @@ function verify(request, response, next){
     return next();
 }
 
+// balance
+
+function getBalance(statement){
+    const balance = statement.reduce((acc, operation) =>{
+        if(operation.type === 'credit'){
+            return acc + operation.amount;
+        } else {
+            return acc - operation.amount;
+        }
+    }, 0);
+}
+
 
 app.post("/account", (request, responde)=>{
     const {cpf, name} = request.body;
@@ -71,6 +83,27 @@ app.post("/deposit", verify, (request, responde)=>{
     customer.statement.push(statementOperation);
 
     return  response.status(201).send();
+});
+
+app.post("/withdraw", verify, (request, response) => {
+    const { amount } = request.body;
+    const { customer } = request;
+
+    const balance = getBalance(customer.statement);
+
+    if (balance < amount){
+        return response.status(400).json({error: "Insuficient funds"})
+    }
+
+    const statementOperation = {
+        amount,
+        created_at: new Date(),
+        type: "credit"
+    };
+
+    customer.statement.push(statementOperation);
+
+    return response.status(201).send();
 });
 
 app.listen(3333);
